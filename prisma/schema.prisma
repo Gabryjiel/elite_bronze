@@ -1,0 +1,194 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id       Int     @id @default(autoincrement()) @map("usr_id")
+  login    String  @map("usr_name") @db.VarChar(64)
+  password String? @map("usr_password") @db.VarChar(128)
+  email    String? @map("usr_email") @db.VarChar(128)
+
+  players Player[]
+
+  @@map("users")
+}
+
+model Tournament {
+  id          Int      @id @default(autoincrement()) @map("tou_id")
+  name        String   @map("tou_name") @db.VarChar(64)
+  description String?  @map("tou_description") @db.VarChar(512)
+  startDate   DateTime @map("tou_start_date") @db.Timestamp(3)
+  endDate     DateTime @map("tou_end_date") @db.Timestamp(4)
+  createdAt   DateTime @default(now()) @map("tou_created_at") @db.Timestamp()
+  updatedAt   DateTime @default(now()) @updatedAt() @map("tou_updated_at") @db.Timestamp(1)
+
+  players Player[]
+  matches Match[]
+
+  @@map("tournaments")
+}
+
+model Match {
+  id           Int      @id @default(autoincrement()) @map("mat_id")
+  tournamentId Int      @map("mat_tou_id")
+  stage        Stage
+  createdAt    DateTime @default(now()) @map("mat_created_at") @db.Timestamp()
+  updatedAt    DateTime @default(now()) @updatedAt() @map("mat_updated_at") @db.Timestamp(1)
+
+  tournament Tournament @relation(fields: [tournamentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  matches    Game[]
+  players    Player[]
+
+  @@map("matches")
+}
+
+model Champion {
+  id        Int      @id @default(autoincrement()) @map("cha_id")
+  name      String   @map("cha_name") @db.VarChar(32)
+  slug      String   @map("cha_slug") @db.VarChar(16)
+  createdAt DateTime @default(now()) @map("cha_created_at") @db.Timestamp()
+  updatedAt DateTime @default(now()) @updatedAt() @map("cha_updated_at") @db.Timestamp(1)
+
+  bans        Ban[]
+  playerGames PlayerGame[]
+
+  @@map("champions")
+}
+
+model Game {
+  id        Int      @id @default(autoincrement()) @map("gam_id")
+  matchId   Int      @map("gam_mat_id")
+  waywin    Waywin   @map("gam_way_id")
+  winside   Side     @map("gam_winside")
+  duration  Int?     @map("gam_duration")
+  videoUrl  String?  @map("gam_video_url")
+  createdAt DateTime @default(now()) @map("gam_created_at") @db.Timestamp()
+  updatedAt DateTime @default(now()) @updatedAt() @map("gam_updated_at") @db.Timestamp(1)
+
+  match       Match        @relation(fields: [matchId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  playerGames PlayerGame[]
+
+  @@map("games")
+}
+
+model Player {
+  id           Int      @id @default(autoincrement()) @map("pla_id")
+  name         String?  @map("pla_name") @db.VarChar(32)
+  rank         Rank
+  userId       Int      @map("pla_usr_id")
+  tournamentId Int      @map("pla_tou_id")
+  placement    Int?     @map("pla_placement")
+  createdAt    DateTime @default(now()) @map("pla_created_at") @db.Timestamp()
+  updatedAt    DateTime @default(now()) @updatedAt() @map("pla_updated_at") @db.Timestamp(1)
+
+  user        User         @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  tournament  Tournament   @relation(fields: [tournamentId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  playerGames PlayerGame[]
+  matches     Match[]
+
+  @@map("players")
+}
+
+model PlayerGame {
+  id         Int      @id @default(autoincrement()) @map("plg_id")
+  gameId     Int      @map("plg_gam_id")
+  playerId   Int      @map("plg_pla_id")
+  championId Int?     @map("plg_cha_id")
+  cs         Int?     @map("plg_cs")
+  side       Side     @map("plg_side")
+  createdAt  DateTime @default(now()) @map("plg_created_at") @db.Timestamp()
+  updatedAt  DateTime @default(now()) @updatedAt() @map("plg_updated_at") @db.Timestamp(1)
+
+  champion Champion? @relation(fields: [championId], references: [id])
+  player   Player    @relation(fields: [playerId], references: [id])
+  game     Game      @relation(fields: [gameId], references: [id])
+  bans     Ban[]
+
+  @@map("players_games")
+}
+
+model Ban {
+  id            Int      @id @default(autoincrement()) @map("ban_id")
+  playerMatchId Int      @map("ban_plm_id")
+  championId    Int      @map("ban_cha_id")
+  createdAt     DateTime @default(now()) @map("ban_created_at") @db.Timestamp()
+  updatedAt     DateTime @default(now()) @updatedAt() @map("ban_updated_at") @db.Timestamp(1)
+
+  champion    Champion   @relation(fields: [championId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  playerMatch PlayerGame @relation(fields: [playerMatchId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@map("bans")
+}
+
+enum Side {
+  BLUE
+  RED
+  NONE
+}
+
+enum Waywin {
+  KILL
+  CS
+  TOWER
+  SURRENDER
+}
+
+enum Rank {
+  UNKNOWN
+  IRON_4
+  IRON_3
+  IRON_2
+  IRON_1
+  BRONZE_5
+  BRONZE_4
+  BRONZE_3
+  BRONZE_2
+  BRONZE_1
+  SILVER_5
+  SILVER_4
+  SILVER_3
+  SILVER_2
+  SILVER_1
+  GOLD_5
+  GOLD_4
+  GOLD_3
+  GOLD_2
+  GOLD_1
+  PLATINUM_5
+  PLATINUM_4
+  PLATINUM_3
+  PLATINUM_2
+  PLATINUM_1
+  DIAMOND_5
+  DIAMOND_4
+  DIAMOND_3
+  DIAMOND_2
+  DIAMOND_1
+  MASTER
+  GRANDMASTER
+  CHALLENGER
+}
+
+enum Stage {
+  FINAL
+  SEMIFINAL
+  THIRD_PLACE_MATCH
+  QUARTERFINAL
+  ONE_8_FINAL
+  ONE_16_FINAL
+  ONE_32_FINAL
+  ONE_64_FINAL
+  GROUP_A
+  GROUP_B
+  GROUP_C
+  GROUP_D
+  GROUP_E
+  GROUP_F
+  GROUP_G
+  GROUP_H
+}
