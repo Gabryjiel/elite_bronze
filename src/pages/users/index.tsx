@@ -1,10 +1,12 @@
 import type { NextPage } from "next";
 import Head from "next/head";
+import Image from "next/image";
 import { Navigation } from "../../components/common/Navigation";
+import { trpc } from "../../utils/trpc";
 
 
 const UsersIndex: NextPage = () => {
-  const users = Array.from({ length: 56 }).map((_, index) => ({ userId: index + 1, name: `User ${index + 1}`}))
+  const usersQuery = trpc.players.getUsers.useQuery(undefined);
 
   return (
     <>
@@ -19,9 +21,10 @@ const UsersIndex: NextPage = () => {
         <section className="w-11/12 h-full py-6">
           <div className="bg-zinc-800 shadow-2xl h-full rounded-xl">
             <div className="w-full h-full flex flex-wrap gap-12 overflow-y-auto p-8 items-center justify-center">
-              {users.map((user) => {
+              {usersQuery.data?.map((user) => {
                 return (
                   <div key={`user-index-${user.userId}`} className="w-24 relative h-24 border-2 border-violet-900 bg-zinc-800 rounded-md cursor-pointer transition-all hover:border-violet-700 hover:border-8" title={user.name}>
+                    <Image alt={user.champion ?? ''} src={user.iconUrl} width={100} height={100} />
                     <div className="absolute -bottom-8 w-full text-center text-zinc-50 overflow-hidden whitespace-nowrap text-ellipsis">{user.name}</div>
                   </div>
                 )

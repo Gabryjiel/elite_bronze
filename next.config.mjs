@@ -13,5 +13,13 @@ const config = {
     locales: ["en"],
     defaultLocale: "en",
   },
+  images: {
+    domains: [
+      'ddragon.leagueoflegends.com',
+      'placehold.jp',
+      'static.wikia.nocookie.net',
+    ],
+    minimumCacheTTL: 180,
+  },
 };
 export default config;
