@@ -10,26 +10,28 @@ export async function getUserChampion(prisma: PrismaClient, userId: number) {
               champion: true,
               side: true,
               game: true,
-            }
-          }
-        }
-      }
+            },
+          },
+        },
+      },
     },
     where: {
       id: userId,
-    }
-  })
+    },
+  });
 
   type ReducedItem = {
     count: number;
-    items: typeof champions.players[number]['playerGames'][number][];
+    items: typeof champions.players[number]["playerGames"][number][];
     name: string;
-  }
+  };
 
   const mapped = champions?.players
     .flatMap((item) => item.playerGames)
     .reduce((all, cur) => {
-      const index = all.findIndex((item) => item.name === cur.champion?.name ?? '')
+      const index = all.findIndex(
+        (item) => item.name === cur.champion?.name ?? ""
+      );
       const element = all[index];
 
       if (index !== -1 && element) {
@@ -39,7 +41,7 @@ export async function getUserChampion(prisma: PrismaClient, userId: number) {
           {
             count: element.count + 1,
             name: element.name,
-            items: [...element.items, cur]
+            items: [...element.items, cur],
           },
         ];
       } else {
@@ -47,25 +49,36 @@ export async function getUserChampion(prisma: PrismaClient, userId: number) {
           ...all,
           {
             count: 1,
-            name: cur.champion?.name ?? '',
-            items: [cur]
-          }
+            name: cur.champion?.name ?? "",
+            items: [cur],
+          },
         ];
       }
     }, [] as ReducedItem[])
     .map((item) => {
-      const score = item.count
-        + item.items.reduce((all, cur) => all + (cur.game.winside === cur.side ? 100 : 0), 0)
+      const score =
+        item.count +
+        item.items.reduce(
+          (all, cur) => all + (cur.game.winside === cur.side ? 3 : 0),
+          0
+        );
 
       return {
         ...item,
-        score
-      }
+        score,
+      };
     })
-    .sort((a, b) => a.score > b.score ? 1 : -1)
-    .at(0)
-    
-    return {
-      name: mapped?.name ?? ''
-    }
+    .sort((a, b) => (a.score < b.score ? 1 : -1))
+    .filter((item) => item.name);
+
+  const maxScore = mapped.reduce(
+    (all, cur) => (all < cur.score ? cur.score : all),
+    mapped[0]?.score ?? 0
+  );
+  const withMaxScore = mapped.filter((item) => item.score === maxScore);
+  const random = Math.floor(Math.random() * withMaxScore.length);
+
+  return {
+    name: mapped[random]?.name ?? "",
+  };
 }
