@@ -28,18 +28,15 @@ const UsersIndex: NextPage = () => {
         <Navigation />
 
         <ContentContainer>
-          <header className="flex justify-between pt-4 pb-8">
-            <ContentContainerTitle text="Użytkownicy" />
-            <div className="pr-8">
-              <input
-                className="appearance-none rounded-xl border-zinc-900 bg-zinc-500 p-2 indent-2 text-xl text-zinc-900 caret-violet-900 accent-violet-900 outline-none"
-                type="text"
-                placeholder="Szukaj"
-                value={search}
-                onChange={handleSearch}
-              />
-            </div>
-          </header>
+          <ContentContainerTitle text="Użytkownicy">
+            <input
+              className="appearance-none rounded-xl border-zinc-900 bg-zinc-500 p-2 indent-2 text-xl text-zinc-900 caret-violet-900 accent-violet-900 outline-none"
+              type="text"
+              placeholder="Szukaj"
+              value={search}
+              onChange={handleSearch}
+            />
+          </ContentContainerTitle>
           <div className="flex flex-1 flex-wrap items-center justify-evenly gap-4 overflow-y-auto px-8 py-2">
             {usersQuery.data?.map((user) => {
               return (
