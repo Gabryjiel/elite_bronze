@@ -63,7 +63,7 @@ export function groupPlayerGames(playerGames: A) {
         },
       };
     }, {} as Record<string, { name: string; count: number }>)
-  );
+  ).sort(sorting2);
 
   const opponentPlayerGamesGrouped = Object.values(
     opponentPlayerGames.reduce((all, cur) => {
@@ -79,7 +79,7 @@ export function groupPlayerGames(playerGames: A) {
         },
       };
     }, {} as Record<string, { name: string; count: number }>)
-  );
+  ).sort(sorting2);
 
   return { myPlayerGamesGrouped, opponentPlayerGamesGrouped };
 }
