@@ -2,6 +2,7 @@ import { z } from "zod";
 import { getIcon, getLoading } from "../../../utils/image-urls";
 import {
   getChampion,
+  getProperties,
   groupPlayerGames,
   sorting1,
 } from "../../common/champions/get-champion";
@@ -70,6 +71,7 @@ export const championsRouter = router({
         opponentPlayerGamesGrouped,
         iconUrl: getIcon(champion.name),
         loadingUrl: getLoading(champion.name),
+        properties: getProperties(champion),
       };
     }),
 });

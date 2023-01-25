@@ -42,101 +42,49 @@ const ChampionPage: NextPage = () => {
           {championQuery.data && (
             <div className="flex h-full w-full gap-8 overflow-hidden p-8">
               <div className="flex flex-col gap-8 md:w-full lg:flex-1">
-                <div className="flex h-48 w-full justify-around gap-8 rounded-xl border-2 border-violet-900 p-8">
-                  <div className="h-32 w-32 rounded-xl border-2 border-violet-900">
-                    Wybory
-                  </div>
-                  <div className="h-32 w-32 rounded-xl border-2 border-violet-900">
-                    Wygrane/Przegrane
-                  </div>
-                  <div className="h-32 w-32 rounded-xl border-2 border-violet-900">
-                    Winratio + Waywin %
-                  </div>
-                  <div className="h-32 w-32 rounded-xl border-2 border-violet-900">
-                    Niebieski/Czerwony
-                  </div>
-                </div>
+                <StatContainer title="Mecze">
+                  <StatContainerItem>
+                    Wybory: {championQuery.data.properties.general.picks}
+                  </StatContainerItem>
+                  <StatContainerItem>
+                    Wygrane: {championQuery.data.properties.general.wins}
+                  </StatContainerItem>
+                  <StatContainerItem>
+                    Przegrane: {championQuery.data.properties.general.loses}
+                  </StatContainerItem>
+                  <StatContainerItem>
+                    Winratio: {championQuery.data.properties.general.winratio}
+                  </StatContainerItem>
+                </StatContainer>
 
-                <div className="flex h-48 w-full justify-around gap-8 rounded-xl border-2 border-violet-900 p-8">
-                  <div className="h-32 w-32 rounded-xl border-2 border-violet-900">
-                    Bany
-                  </div>
-                  <div className="h-32 w-32 rounded-xl border-2 border-violet-900">
-                    Średnio CS
-                  </div>
-                  <div className="h-32 w-32 rounded-xl border-2 border-violet-900">
-                    Winratio + Waywin %
-                  </div>
-                  <div className="h-32 w-32 rounded-xl border-2 border-violet-900">
-                    Niebieski/Czerwony
-                  </div>
-                </div>
+                <StatContainer title="Inne">
+                  <StatContainerItem>
+                    Bany: {championQuery.data.properties.general.bans}
+                  </StatContainerItem>
+                  <StatContainerItem>
+                    Średnio CS: {championQuery.data.properties.general.avgCs}
+                  </StatContainerItem>
+                  <StatContainerItem>
+                    Niebieski: {championQuery.data.properties.blueSide.picks}
+                  </StatContainerItem>
+                  <StatContainerItem>
+                    Czerwony: {championQuery.data.properties.redSide.picks}
+                  </StatContainerItem>
+                </StatContainer>
 
                 <div className="flex flex-1 gap-8 overflow-hidden">
-                  <div className="flex h-full w-1/3 flex-col rounded-xl border-2 border-violet-900">
-                    <div className="h-8 w-full border-b-2 border-violet-900 text-center">
-                      <span className="font-bold text-violet-300">
-                        Przywoływacze
-                      </span>
-                    </div>
-                    <div className="flex-1 overflow-auto">
-                      {championQuery.data.myPlayerGamesGrouped.map((item) => {
-                        return (
-                          <div
-                            key={item.name}
-                            className="flex w-full justify-between border-b-2 border-b-violet-900 p-2 text-violet-300"
-                          >
-                            <span className="font-bold">{item.name}</span>
-                            <span className="font-bold">{item.count}</span>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                  <div className="flex h-full w-1/3 flex-col rounded-xl border-2 border-violet-900">
-                    <div className="h-8 w-full border-b-2 border-violet-900 text-center">
-                      <span className="font-bold text-violet-300">
-                        Przeciwnicy
-                      </span>
-                    </div>
-                    <div className="flex-1 overflow-auto">
-                      {championQuery.data.opponentPlayerGamesGrouped.map(
-                        (item) => {
-                          return (
-                            <div
-                              key={item.name}
-                              className="flex w-full justify-between border-b-2 border-b-violet-900 p-2 text-violet-300"
-                            >
-                              <span className="font-bold">{item.name}</span>
-                              <span className="font-bold">{item.count}</span>
-                            </div>
-                          );
-                        }
-                      )}
-                    </div>
-                  </div>
-                  <div className="flex h-full w-1/3 flex-col rounded-xl border-2 border-violet-900">
-                    <div className="h-8 w-full border-b-2 border-violet-900 text-center">
-                      <span className="font-bold text-violet-300">
-                        Banujący
-                      </span>
-                    </div>
-                    <div className="flex-1 overflow-auto">
-                      {championQuery.data.playersBanning.map((item) => {
-                        return (
-                          <div
-                            key={item.name}
-                            className="flex w-full justify-between border-b-2 border-b-violet-900 p-2 text-violet-300"
-                          >
-                            <span className="font-bold">{item.name}</span>
-                            <span className="font-bold">
-                              {item._count._all}
-                            </span>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
+                  <StatList
+                    title="Przywoływacze"
+                    items={championQuery.data.myPlayerGamesGrouped}
+                  />
+                  <StatList
+                    title="Przeciwnicy"
+                    items={championQuery.data.opponentPlayerGamesGrouped}
+                  />
+                  <StatList
+                    title="Banujący"
+                    items={championQuery.data.playersBanning}
+                  />
                 </div>
               </div>
               <div className="h-full w-96 items-stretch md:hidden lg:flex">
@@ -152,6 +100,56 @@ const ChampionPage: NextPage = () => {
         </ContentContainer>
       </MainContainer>
     </>
+  );
+};
+
+const StatContainer: React.FC<{
+  title: string;
+  children: React.ReactNode;
+}> = (props) => {
+  return (
+    <div className="relative flex h-48 w-full justify-around gap-8 rounded-xl border-2 border-violet-900 p-8">
+      <span className="absolute -top-5 left-8 bg-zinc-800 px-2 text-2xl font-bold text-violet-900">
+        {props.title}
+      </span>
+      {props.children}
+    </div>
+  );
+};
+
+const StatContainerItem: React.FC<{ children: React.ReactNode }> = (props) => {
+  return (
+    <div className="h-32 w-32 rounded-xl border-2 border-violet-900">
+      {props.children}
+    </div>
+  );
+};
+
+const StatList: React.FC<{
+  title: string;
+  items: { name: string | null; count?: number; _count?: { _all: number } }[];
+}> = (props) => {
+  return (
+    <div className="flex h-full w-1/3 flex-col rounded-xl border-2 border-violet-900">
+      <div className="h-8 w-full border-b-2 border-violet-900 text-center">
+        <span className="text-xl font-bold text-violet-900">{props.title}</span>
+      </div>
+      <div className="flex-1 overflow-auto">
+        {props.items.map((item) => {
+          return (
+            <div
+              key={item.name}
+              className="flex w-full justify-between border-b-2 border-b-violet-900 p-2 text-violet-400"
+            >
+              <span className="font-bold">{item.name}</span>
+              <span className="font-bold">
+                {item._count?._all ?? item.count ?? 0}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
   );
 };
 
