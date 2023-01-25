@@ -1,3 +1,4 @@
+import type { Prisma } from "@prisma/client";
 import { z } from "zod";
 import { getIcon, getLoading } from "../../../utils/image-urls";
 import { publicProcedure, router } from "../trpc";
@@ -83,24 +84,27 @@ export const championsRouter = router({
         },
       });
 
-      playersBanning.sort((a, b) =>
-        a._count._all === b._count._all
+      type SortPayers = Prisma.PickArray<
+        Prisma.PlayerGroupByOutputType,
+        "name"[]
+      > & {
+        _count: {
+          _all: number;
+        };
+      };
+
+      function sorting(a: SortPayers, b: SortPayers) {
+        return a._count._all === b._count._all
           ? (a.name ?? "") > (b.name ?? "")
             ? 1
             : -1
           : a._count._all < b._count._all
           ? 1
-          : -1
-      );
-      playersPlaying.sort((a, b) =>
-        a._count._all === b._count._all
-          ? (a.name ?? "") > (b.name ?? "")
-            ? 1
-            : -1
-          : a._count._all < b._count._all
-          ? 1
-          : -1
-      );
+          : -1;
+      }
+
+      playersBanning.sort(sorting);
+      playersPlaying.sort(sorting);
 
       return {
         ...champion,
