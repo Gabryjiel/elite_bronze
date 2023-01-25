@@ -1,11 +1,22 @@
 import type { NextPage } from "next";
 import Head from "next/head";
+import Image from "next/image";
+import Link from "next/link";
+import type { ChangeEventHandler } from "react";
+import { useState } from "react";
 import { ContentContainer } from "../components/common/ContentContainer";
 import { ContentContainerTitle } from "../components/common/ContentContainerTitle";
 import { MainContainer } from "../components/common/MainContainer";
 import { Navigation } from "../components/common/Navigation";
+import { trpc } from "../utils/trpc";
 
 const ChampionIndexPage: NextPage = () => {
+  const [search, setSearch] = useState("");
+  const championsQuery = trpc.champions.getChampions.useQuery({ search });
+
+  const handleSearch: ChangeEventHandler<HTMLInputElement> = (event) => {
+    setSearch(event.target.value);
+  };
   return (
     <>
       <Head>
@@ -18,7 +29,43 @@ const ChampionIndexPage: NextPage = () => {
         <Navigation />
 
         <ContentContainer>
-          <ContentContainerTitle text="Bohaterowie" />
+          <ContentContainerTitle text="Bohaterowie">
+            <input
+              className="appearance-none rounded-xl border-zinc-900 bg-zinc-500 p-2 indent-2 text-xl text-zinc-900 caret-violet-900 accent-violet-900 outline-none"
+              type="text"
+              placeholder="Szukaj"
+              value={search}
+              onChange={handleSearch}
+            />
+          </ContentContainerTitle>
+
+          <div className="flex flex-1 flex-wrap items-center justify-evenly gap-4 overflow-y-auto px-8 py-2">
+            {championsQuery.data?.map((champion) => {
+              return (
+                <div
+                  key={`user-index-${champion.id}`}
+                  className="relative flex h-32 w-36 cursor-pointer flex-col items-center gap-1"
+                  title={champion.name}
+                >
+                  <Link href={`champions/${champion.id}`}>
+                    <div className="flex h-24 w-24 flex-col rounded-md border-2 border-violet-900 transition-all hover:border-4 hover:border-violet-700">
+                      <Image
+                        alt={champion.name ?? ""}
+                        src={champion.iconUrl}
+                        width={200}
+                        height={200}
+                      />
+                    </div>
+                  </Link>
+                  <Link href={`champions/${champion.id}`}>
+                    <div className="w-full overflow-hidden text-ellipsis whitespace-nowrap text-center text-zinc-50">
+                      {champion.name}
+                    </div>
+                  </Link>
+                </div>
+              );
+            })}
+          </div>
         </ContentContainer>
       </MainContainer>
     </>
