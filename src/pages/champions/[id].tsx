@@ -1,6 +1,8 @@
 import type { NextPage } from "next";
 import Head from "next/head";
+import Image from "next/image";
 import { useRouter } from "next/router";
+
 import { ContentContainer } from "../../components/common/ContentContainer";
 import { ContentContainerTitle } from "../../components/common/ContentContainerTitle";
 import { MainContainer } from "../../components/common/MainContainer";
@@ -11,7 +13,7 @@ const ChampionPage: NextPage = () => {
   const router = useRouter();
   const championQuery = trpc.champions.getChampion.useQuery({
     championId: parseInt(
-      typeof router.query.id === "string" ? router.query.id : "0"
+      typeof router.query.id === "string" ? router.query.id : "1"
     ),
   });
 
@@ -26,7 +28,123 @@ const ChampionPage: NextPage = () => {
         <Navigation />
 
         <ContentContainer>
-          <ContentContainerTitle text={championQuery.data?.name ?? ""} />
+          <ContentContainerTitle text={championQuery.data?.name ?? ""}>
+            <div className="h-24 w-24 items-center md:flex lg:hidden">
+              <Image
+                width={100}
+                height={100}
+                src={championQuery.data?.iconUrl ?? ""}
+                alt={`${championQuery.data?.name}`}
+              />
+            </div>
+          </ContentContainerTitle>
+
+          {championQuery.data && (
+            <div className="flex h-full w-full gap-8 overflow-hidden p-8">
+              <div className="flex flex-col gap-8 md:w-full lg:flex-1">
+                <div className="flex h-48 w-full justify-around gap-8 rounded-xl border-2 border-violet-900 p-8">
+                  <div className="h-32 w-32 rounded-xl border-2 border-violet-900">
+                    Wybory
+                  </div>
+                  <div className="h-32 w-32 rounded-xl border-2 border-violet-900">
+                    Wygrane/Przegrane
+                  </div>
+                  <div className="h-32 w-32 rounded-xl border-2 border-violet-900">
+                    Winratio + Waywin %
+                  </div>
+                  <div className="h-32 w-32 rounded-xl border-2 border-violet-900">
+                    Niebieski/Czerwony
+                  </div>
+                </div>
+
+                <div className="flex h-48 w-full justify-around gap-8 rounded-xl border-2 border-violet-900 p-8">
+                  <div className="h-32 w-32 rounded-xl border-2 border-violet-900">
+                    Bany
+                  </div>
+                  <div className="h-32 w-32 rounded-xl border-2 border-violet-900">
+                    Średnio CS
+                  </div>
+                  <div className="h-32 w-32 rounded-xl border-2 border-violet-900">
+                    Winratio + Waywin %
+                  </div>
+                  <div className="h-32 w-32 rounded-xl border-2 border-violet-900">
+                    Niebieski/Czerwony
+                  </div>
+                </div>
+
+                <div className="flex flex-1 gap-8 overflow-hidden">
+                  <div className="flex h-full w-1/3 flex-col rounded-xl border-2 border-violet-900">
+                    <div className="h-8 w-full border-b-2 border-violet-900 text-center">
+                      <span className="font-bold text-violet-300">
+                        Przywoływacze
+                      </span>
+                    </div>
+                    <div className="flex-1 overflow-auto">
+                      {championQuery.data.playersPlaying.map(
+                        (playerBanning) => {
+                          return (
+                            <div
+                              key={playerBanning.name}
+                              className="flex w-full justify-between border-b-2 border-b-violet-900 p-2 text-violet-300"
+                            >
+                              <span className="font-bold">
+                                {playerBanning.name}
+                              </span>
+                              <span className="font-bold">
+                                {playerBanning._count._all}
+                              </span>
+                            </div>
+                          );
+                        }
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex h-full w-1/3 flex-col rounded-xl border-2 border-violet-900">
+                    <div className="h-8 w-full border-b-2 border-violet-900 text-center">
+                      <span className="font-bold text-violet-300">
+                        Przeciwnicy
+                      </span>
+                    </div>
+                    <div className="flex-1"></div>
+                  </div>
+                  <div className="flex h-full w-1/3 flex-col rounded-xl border-2 border-violet-900">
+                    <div className="h-8 w-full border-b-2 border-violet-900 text-center">
+                      <span className="font-bold text-violet-300">
+                        Banujący
+                      </span>
+                    </div>
+                    <div className="flex-1 overflow-auto">
+                      {championQuery.data.playersBanning.map(
+                        (playerBanning) => {
+                          return (
+                            <div
+                              key={playerBanning.name}
+                              className="flex w-full justify-between border-b-2 border-b-violet-900 p-2 text-violet-300"
+                            >
+                              <span className="font-bold">
+                                {playerBanning.name}
+                              </span>
+                              <span className="font-bold">
+                                {playerBanning._count._all}
+                              </span>
+                            </div>
+                          );
+                        }
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="h-full w-96 items-stretch md:hidden lg:flex">
+                <Image
+                  width={400}
+                  height={500}
+                  src={championQuery.data?.loadingUrl ?? ""}
+                  alt={`${championQuery.data?.name}`}
+                />
+              </div>
+            </div>
+          )}
         </ContentContainer>
       </MainContainer>
     </>

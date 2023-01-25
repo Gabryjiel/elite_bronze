@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { getIcon } from "../../../utils/image-urls";
+import { getIcon, getLoading } from "../../../utils/image-urls";
 import { publicProcedure, router } from "../trpc";
 
 export const championsRouter = router({
@@ -30,6 +30,18 @@ export const championsRouter = router({
     .input(z.object({ championId: z.number().positive() }))
     .query(async ({ ctx, input }) => {
       const champion = await ctx.prisma.champion.findFirst({
+        include: {
+          bans: {
+            include: {
+              playerMatch: {
+                include: {
+                  player: true,
+                },
+              },
+            },
+          },
+          playerGames: true,
+        },
         where: {
           id: input.championId,
         },
@@ -39,9 +51,63 @@ export const championsRouter = router({
         return null;
       }
 
+      const playersBanning = await ctx.prisma.player.groupBy({
+        by: ["name"],
+        _count: {
+          _all: true,
+        },
+        where: {
+          playerGames: {
+            some: {
+              bans: {
+                some: {
+                  championId: input.championId,
+                },
+              },
+            },
+          },
+        },
+      });
+
+      const playersPlaying = await ctx.prisma.player.groupBy({
+        by: ["name"],
+        _count: {
+          _all: true,
+        },
+        where: {
+          playerGames: {
+            some: {
+              championId: input.championId,
+            },
+          },
+        },
+      });
+
+      playersBanning.sort((a, b) =>
+        a._count._all === b._count._all
+          ? (a.name ?? "") > (b.name ?? "")
+            ? 1
+            : -1
+          : a._count._all < b._count._all
+          ? 1
+          : -1
+      );
+      playersPlaying.sort((a, b) =>
+        a._count._all === b._count._all
+          ? (a.name ?? "") > (b.name ?? "")
+            ? 1
+            : -1
+          : a._count._all < b._count._all
+          ? 1
+          : -1
+      );
+
       return {
         ...champion,
+        playersBanning,
+        playersPlaying,
         iconUrl: getIcon(champion.name),
+        loadingUrl: getLoading(champion.name),
       };
     }),
 });
