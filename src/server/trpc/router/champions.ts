@@ -1,6 +1,11 @@
-import type { Prisma } from "@prisma/client";
 import { z } from "zod";
 import { getIcon, getLoading } from "../../../utils/image-urls";
+import {
+  getChampion,
+  groupPlayerGames,
+  sorting1,
+  sorting2,
+} from "../../common/champions/get-champion";
 import { publicProcedure, router } from "../trpc";
 
 export const championsRouter = router({
@@ -30,26 +35,10 @@ export const championsRouter = router({
   getChampion: publicProcedure
     .input(z.object({ championId: z.number().positive() }))
     .query(async ({ ctx, input }) => {
-      const champion = await ctx.prisma.champion.findFirst({
-        include: {
-          bans: {
-            include: {
-              playerMatch: {
-                include: {
-                  player: true,
-                },
-              },
-            },
-          },
-          playerGames: true,
-        },
-        where: {
-          id: input.championId,
-        },
-      });
+      const champion = await getChampion(ctx.prisma, input.championId);
 
       if (!champion) {
-        return null;
+        throw new Error(`Champion with id ${input.championId} not found`);
       }
 
       const playersBanning = await ctx.prisma.player.groupBy({
@@ -70,46 +59,18 @@ export const championsRouter = router({
         },
       });
 
-      const playersPlaying = await ctx.prisma.player.groupBy({
-        by: ["name"],
-        _count: {
-          _all: true,
-        },
-        where: {
-          playerGames: {
-            some: {
-              championId: input.championId,
-            },
-          },
-        },
-      });
+      const { myPlayerGamesGrouped, opponentPlayerGamesGrouped } =
+        groupPlayerGames(champion);
 
-      type SortPayers = Prisma.PickArray<
-        Prisma.PlayerGroupByOutputType,
-        "name"[]
-      > & {
-        _count: {
-          _all: number;
-        };
-      };
-
-      function sorting(a: SortPayers, b: SortPayers) {
-        return a._count._all === b._count._all
-          ? (a.name ?? "") > (b.name ?? "")
-            ? 1
-            : -1
-          : a._count._all < b._count._all
-          ? 1
-          : -1;
-      }
-
-      playersBanning.sort(sorting);
-      playersPlaying.sort(sorting);
+      playersBanning.sort(sorting1);
+      myPlayerGamesGrouped.sort(sorting2);
+      opponentPlayerGamesGrouped.sort(sorting2);
 
       return {
         ...champion,
         playersBanning,
-        playersPlaying,
+        myPlayerGamesGrouped,
+        opponentPlayerGamesGrouped,
         iconUrl: getIcon(champion.name),
         loadingUrl: getLoading(champion.name),
       };

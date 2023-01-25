@@ -80,23 +80,17 @@ const ChampionPage: NextPage = () => {
                       </span>
                     </div>
                     <div className="flex-1 overflow-auto">
-                      {championQuery.data.playersPlaying.map(
-                        (playerBanning) => {
-                          return (
-                            <div
-                              key={playerBanning.name}
-                              className="flex w-full justify-between border-b-2 border-b-violet-900 p-2 text-violet-300"
-                            >
-                              <span className="font-bold">
-                                {playerBanning.name}
-                              </span>
-                              <span className="font-bold">
-                                {playerBanning._count._all}
-                              </span>
-                            </div>
-                          );
-                        }
-                      )}
+                      {championQuery.data.myPlayerGamesGrouped.map((item) => {
+                        return (
+                          <div
+                            key={item.name}
+                            className="flex w-full justify-between border-b-2 border-b-violet-900 p-2 text-violet-300"
+                          >
+                            <span className="font-bold">{item.name}</span>
+                            <span className="font-bold">{item.count}</span>
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
                   <div className="flex h-full w-1/3 flex-col rounded-xl border-2 border-violet-900">
@@ -105,7 +99,21 @@ const ChampionPage: NextPage = () => {
                         Przeciwnicy
                       </span>
                     </div>
-                    <div className="flex-1"></div>
+                    <div className="flex-1 overflow-auto">
+                      {championQuery.data.opponentPlayerGamesGrouped.map(
+                        (item) => {
+                          return (
+                            <div
+                              key={item.name}
+                              className="flex w-full justify-between border-b-2 border-b-violet-900 p-2 text-violet-300"
+                            >
+                              <span className="font-bold">{item.name}</span>
+                              <span className="font-bold">{item.count}</span>
+                            </div>
+                          );
+                        }
+                      )}
+                    </div>
                   </div>
                   <div className="flex h-full w-1/3 flex-col rounded-xl border-2 border-violet-900">
                     <div className="h-8 w-full border-b-2 border-violet-900 text-center">
@@ -114,23 +122,19 @@ const ChampionPage: NextPage = () => {
                       </span>
                     </div>
                     <div className="flex-1 overflow-auto">
-                      {championQuery.data.playersBanning.map(
-                        (playerBanning) => {
-                          return (
-                            <div
-                              key={playerBanning.name}
-                              className="flex w-full justify-between border-b-2 border-b-violet-900 p-2 text-violet-300"
-                            >
-                              <span className="font-bold">
-                                {playerBanning.name}
-                              </span>
-                              <span className="font-bold">
-                                {playerBanning._count._all}
-                              </span>
-                            </div>
-                          );
-                        }
-                      )}
+                      {championQuery.data.playersBanning.map((item) => {
+                        return (
+                          <div
+                            key={item.name}
+                            className="flex w-full justify-between border-b-2 border-b-violet-900 p-2 text-violet-300"
+                          >
+                            <span className="font-bold">{item.name}</span>
+                            <span className="font-bold">
+                              {item._count._all}
+                            </span>
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
                 </div>
