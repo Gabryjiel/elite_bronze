@@ -1,6 +1,7 @@
 import type { NextPage } from "next";
 import Head from "next/head";
 import Image from "next/image";
+import Link from "next/link";
 import type { ChangeEventHandler } from "react";
 import { useState } from "react";
 import { ContentContainer } from "../components/common/ContentContainer";
@@ -45,17 +46,21 @@ const UsersIndex: NextPage = () => {
                   className="relative flex h-32 w-36 cursor-pointer flex-col items-center gap-1"
                   title={user.name}
                 >
-                  <div className="flex h-24 w-24 flex-col rounded-md border-2 border-violet-900 transition-all hover:border-4 hover:border-violet-700">
-                    <Image
-                      alt={user.champion ?? ""}
-                      src={user.iconUrl}
-                      width={200}
-                      height={200}
-                    />
-                  </div>
-                  <div className="w-full overflow-hidden text-ellipsis whitespace-nowrap text-center text-zinc-50">
-                    {user.name}
-                  </div>
+                  <Link href={`users/${user.userId}`}>
+                    <div className="flex h-24 w-24 flex-col rounded-md border-2 border-violet-900 transition-all hover:border-4 hover:border-violet-700">
+                      <Image
+                        alt={user.champion ?? ""}
+                        src={user.iconUrl}
+                        width={200}
+                        height={200}
+                      />
+                    </div>
+                  </Link>
+                  <Link href={`users/${user.userId}`}>
+                    <div className="w-full overflow-hidden text-ellipsis whitespace-nowrap text-center text-zinc-50">
+                      {user.name}
+                    </div>
+                  </Link>
                 </div>
               );
             })}

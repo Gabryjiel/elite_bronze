@@ -44,4 +44,16 @@ export const playersRouter = router({
 
       return mappedResult;
     }),
+
+  getUser: publicProcedure
+    .input(z.object({ userId: z.number().positive() }))
+    .query(async ({ ctx, input }) => {
+      const user = await ctx.prisma.user.findFirst({
+        where: {
+          id: input.userId,
+        },
+      });
+
+      return user;
+    }),
 });

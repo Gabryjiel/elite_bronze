@@ -25,4 +25,23 @@ export const championsRouter = router({
         };
       });
     }),
+
+  getChampion: publicProcedure
+    .input(z.object({ championId: z.number().positive() }))
+    .query(async ({ ctx, input }) => {
+      const champion = await ctx.prisma.champion.findFirst({
+        where: {
+          id: input.championId,
+        },
+      });
+
+      if (!champion) {
+        return null;
+      }
+
+      return {
+        ...champion,
+        iconUrl: getIcon(champion.name),
+      };
+    }),
 });
